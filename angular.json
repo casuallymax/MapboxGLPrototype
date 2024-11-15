@@ -27,7 +27,8 @@
               }
             ],
             "styles": [
-              "src/styles.css"
+              "src/styles.css",
+              "https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.css"
             ],
             "scripts": []
           },
@@ -37,7 +38,7 @@
                 {
                   "type": "initial",
                   "maximumWarning": "500kB",
-                  "maximumError": "1MB"
+                  "maximumError": "100MB"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -85,7 +86,8 @@
               }
             ],
             "styles": [
-              "src/styles.css"
+              "src/styles.css",
+              "https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.css"
             ],
             "scripts": []
           }

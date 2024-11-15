@@ -1,0 +1,175 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [13.04, 52.85, 9000]
+      },
+      "properties": {
+        "georef": "NKNJ",
+        "height": 9000,
+        "bird_risk": 8,
+        "timer": "2024-01-28T20:25:21Z"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.04, 53.85, 9625]
+      },
+      "properties": {
+        "georef": "NKNJ",
+        "height": 9625,
+        "bird_risk": 8,
+        "timer": "2024-01-28T20:26:13Z"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [10.22, 52.27, 5125]
+      },
+      "properties": {
+        "georef": "NKLH",
+        "height": 5125,
+        "bird_risk": 5,
+        "timer": "2024-01-28T20:26:13Z"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.25, 51.27, 3500]
+      },
+      "properties": {
+        "georef": "NKLH",
+        "height": 3500,
+        "bird_risk": 5,
+        "timer": "2024-01-28T20:25:21Z"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [12.25, 59.27, 3500]
+      },
+      "properties": {
+        "georef": "NKLH",
+        "height": 3500,
+        "bird_risk": 5,
+        "timer": "2024-01-28T20:26:13Z"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [10.25, 52.27, 3500]
+      },
+      "properties": {
+        "georef": "NKLH",
+        "height": 3500,
+        "bird_risk": 6,
+        "timer": "2024-01-28T20:25:21Z"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [10.25, 50.27, 3500]
+      },
+      "properties": {
+        "georef": "NKLH",
+        "height": 3500,
+        "bird_risk": 6,
+        "timer": "2024-01-28T20:26:13Z"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [11.25, 52.37, 3500]
+      },
+      "properties": {
+        "georef": "NKLH",
+        "height": 3500,
+        "bird_risk": 7,
+        "timer": "2024-01-28T20:25:21Z"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [11.55, 52.27, 3500]
+      },
+      "properties": {
+        "georef": "NKLH",
+        "height": 3500,
+        "bird_risk": 7,
+        "timer": "2024-01-28T20:26:13Z"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [10.99, 52.27, 3500]
+      },
+      "properties": {
+        "georef": "NKLH",
+        "height": 3500,
+        "bird_risk": 8,
+        "timer": "2024-01-28T20:25:21Z"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [10.25, 51.57, 3500]
+      },
+      "properties": {
+        "georef": "NKLH",
+        "height": 3500,
+        "bird_risk": 8,
+        "timer": "2024-01-28T20:26:13Z"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [10.25, 52.27, 10375]
+      },
+      "properties": {
+        "georef": "NKLH",
+        "height": 10375,
+        "bird_risk": 5,
+        "timer": "2024-01-28T20:25:21Z"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [10.45, 52.97, 10375]
+      },
+      "properties": {
+        "georef": "NKLH",
+        "height": 10375,
+        "bird_risk": 5,
+        "timer": "2024-01-28T20:26:13Z"
+      }
+    }
+  ]
+}
+

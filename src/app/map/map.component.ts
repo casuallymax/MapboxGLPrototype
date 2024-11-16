@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {ApiService} from '../service/api.service';
 import {Subscription} from 'rxjs';
 import mapboxgl, {LngLatBoundsLike} from 'mapbox-gl';
@@ -17,8 +17,12 @@ import {ThreePreProcessor} from '../util/threePreProcessor';
   styleUrl: './map.component.css'
 })
 export class MapComponent implements OnInit, OnDestroy {
+  @Input() toggleLayer: {
+    value: number,
+    checked: boolean
+  };
 
-  private MAPBOX_TOKEN = 'pk.eyJ1IjoicmJybnMiLCJhIjoiY2tpNTIwcGJhMDJsZzJxbnF0YXhmMDY1NSJ9._cIg-xSzGD06aLiY3Ggsxg'
+  private MAPBOX_TOKEN = process.env.MAPBOX_API_KEY
   private MAPBOX_STYLE = 'mapbox://styles/mapbox/dark-v11'
   private MAPBOX_TERRAIN = 'mapbox://mapbox.mapbox-terrain-dem-v1'
 
@@ -30,6 +34,7 @@ export class MapComponent implements OnInit, OnDestroy {
   private map: MapboxMap | null = null
   private layers = new Layers();
   private threeProcessor = new ThreePreProcessor();
+
   private customLayerIDs: string[] = [];
 
   constructor(
@@ -161,6 +166,7 @@ export class MapComponent implements OnInit, OnDestroy {
       const featuresOnLayer: any[] = this.groupedGeoJsonData?.get(layer.id)
 
       this.map.addLayer({
+
         id: 'custom-' + layer.id,
         type: 'custom',
         renderingMode: '3d',
@@ -170,6 +176,7 @@ export class MapComponent implements OnInit, OnDestroy {
               color: Colors.getColorByLevel(feature.properties.bird_risk),
               radius: 10
             })
+
             point.setCoords(feature.geometry.coordinates)
             tb.add(point)
           })
@@ -178,8 +185,10 @@ export class MapComponent implements OnInit, OnDestroy {
           tb.update()
         }
       });
+
       this.customLayerIDs.push('custom-' + layer.id);
       tb.toggleLayer('custom-' + layer.id, true);
+
     })
 
     this.map.on("zoom", () => {
@@ -199,8 +208,11 @@ export class MapComponent implements OnInit, OnDestroy {
           this.map?.setLayoutProperty(layer, 'visibility', 'none')
         })
       }
-
     });
+  }
+
+  toggleLayers() {
+
   }
 
   ngOnDestroy() {

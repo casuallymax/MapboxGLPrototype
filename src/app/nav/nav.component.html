@@ -1,0 +1,29 @@
+<div
+  class="card white darken-1 height-legend non-touchable"
+  style="
+              background-color: #1f1e1e !important;
+              width: max-content;
+              pointer-events: auto !important;
+            "
+>
+  @for (checkbox of checkboxArray; track checkbox){
+    <p>
+      <label class="form-check form-check-inline">
+        <input
+          type="checkbox"
+          class="form-check-input {{ checkbox.color }}"
+          id="cbheight{{ checkbox.id }}"
+          (change)="toggleLayer(checkbox.id, $event)"
+          checked
+        />
+        <label
+          for="cbheight{{ checkbox.id }}"
+          class="form-check-label legend-text"
+        >{{ checkbox.name }}</label
+        >
+      </label>
+    </p>
+  }
+</div>
+
+

@@ -211,10 +211,6 @@ export class MapComponent implements OnInit, OnDestroy {
     });
   }
 
-  toggleLayers() {
-
-  }
-
   ngOnDestroy() {
     for (let i = 0; i < this.subscriptions.length; i++) {
       this.subscriptions[i].unsubscribe()

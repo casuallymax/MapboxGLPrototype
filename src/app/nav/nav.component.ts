@@ -1,5 +1,5 @@
-import {Component, EventEmitter, OnInit, Output} from '@angular/core';
-import {FormControl, FormGroup, FormsModule} from '@angular/forms';
+import {Component, EventEmitter, Output} from '@angular/core';
+import {FormsModule} from '@angular/forms';
 
 @Component({
   selector: 'navComponent',
@@ -34,4 +34,4 @@ export class NavComponent {
     this.toggleLayers.emit({ value, checked });
   }
 
-}
+}/**/

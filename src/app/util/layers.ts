@@ -5,12 +5,12 @@ export class Layers {
   public getCheckBoxArray(): any[] {
     return [
       {
-        id: 'points1',
+        id: 1,
         colors: () => Colors.getColorByLevel(1),
         filter: ['<', ['get', 'height'], 1000],
       },
       {
-        id: 'points2',
+        id: 2,
         colors: () => Colors.getColorByLevel(2),
         filter: [
           'all',
@@ -19,7 +19,7 @@ export class Layers {
         ],
       },
       {
-        id: 'points3',
+        id: 3,
         colors: () => Colors.getColorByLevel(3),
         filter: [
           'all',
@@ -28,7 +28,7 @@ export class Layers {
         ],
       },
       {
-        id: 'points4',
+        id: 4,
         colors: () => Colors.getColorByLevel(4),
         filter: [
           'all',
@@ -37,7 +37,7 @@ export class Layers {
         ],
       },
       {
-        id: 'points5',
+        id: 5,
         colors: () => Colors.getColorByLevel(5),
         filter: [
           'all',
@@ -46,7 +46,7 @@ export class Layers {
         ],
       },
       {
-        id: 'points6',
+        id: 6,
         colors: () => Colors.getColorByLevel(6),
         filter: [
           'all',
@@ -55,7 +55,7 @@ export class Layers {
         ],
       },
       {
-        id: 'points7',
+        id: 7,
         colors: () => Colors.getColorByLevel(7),
         filter: [
           'all',
@@ -64,7 +64,7 @@ export class Layers {
         ],
       },
       {
-        id: 'points8',
+        id: 8,
         colors: () => Colors.getColorByLevel(8),
         filter: [
           'all',
@@ -73,7 +73,7 @@ export class Layers {
         ],
       },
       {
-        id: 'points9',
+        id: 9,
         colors: () => Colors.getColorByLevel(9),
         filter: [
           'all',
@@ -82,7 +82,7 @@ export class Layers {
         ],
       },
       {
-        id: 'points10',
+        id: 10,
         colors: () => Colors.getColorByLevel(10),
         filter: ['>=', ['get', 'height'], 12000],
       },

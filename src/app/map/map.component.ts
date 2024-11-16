@@ -1,11 +1,13 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ApiService} from '../service/api.service';
 import {Subscription} from 'rxjs';
-import mapboxgl, {LngLatBoundsLike, Map} from 'mapbox-gl';
+import mapboxgl, {AnyLayer, CustomLayerInterface, LayerSpecification, LngLatBoundsLike} from 'mapbox-gl';
+import {Map as MapboxMap} from 'mapbox-gl'
 import gjv from 'geojson-validation';
 import {Layers} from '../util/layers';
 import {Threebox} from 'threebox-plugin'
 import {Colors} from '../util/colors';
+import {ThreePreProcessor} from '../util/threePreProcessor';
 
 @Component({
   selector: 'mapComponent',
@@ -20,22 +22,24 @@ export class MapComponent implements OnInit, OnDestroy {
   private MAPBOX_STYLE = 'mapbox://styles/mapbox/dark-v11'
   private MAPBOX_TERRAIN = 'mapbox://mapbox.mapbox-terrain-dem-v1'
 
-
   private ZOOM_THRESHOLD = 9;
 
   private geoJsonData: any
+  private groupedGeoJsonData?: Map<number, any>
   private subscriptions: Subscription[] = []
-  private map: Map | null = null
+  private map: MapboxMap | null = null
   private layers = new Layers();
+  private threeProcessor = new ThreePreProcessor();
+  private customLayerIDs: string[] = [];
 
   constructor(
     private apiService: ApiService
-  ) {
-  }
+  ) { }
 
   ngOnInit() {
     let sub1 = this.apiService.fetchDataJSON().subscribe((x) => {
       this.geoJsonData = x;
+      this.groupedGeoJsonData = this.threeProcessor.processData(x);
     })
     this.subscriptions.push(sub1)
 
@@ -44,7 +48,7 @@ export class MapComponent implements OnInit, OnDestroy {
       container: 'map',
       style: this.MAPBOX_STYLE,
       center: [10.447683, 51.163361],
-      zoom: 9
+      zoom: 1
     });
 
     this.map.on('style.load', () => {
@@ -73,7 +77,7 @@ export class MapComponent implements OnInit, OnDestroy {
   }
 
   setMapTerrain() {
-    const exaggeration = 5;
+    const exaggeration = 4;
 
     if (!this.map) {
       console.error('Map ist nicht definiert');
@@ -99,8 +103,6 @@ export class MapComponent implements OnInit, OnDestroy {
       return;
     }
 
-    console.log(this.geoJsonData)
-
     if (!gjv.valid(this.geoJsonData)) {
       console.error('Fehlerhaftes GeoJSON');
       return;
@@ -119,7 +121,7 @@ export class MapComponent implements OnInit, OnDestroy {
       }
 
       this.map.addLayer({
-        id: layer.id,
+        id: 'regular-'+layer.id,
         type: 'circle',
         source: 'geoJsonData',
         paint: {
@@ -130,7 +132,7 @@ export class MapComponent implements OnInit, OnDestroy {
         filter: layer.filter
       })
 
-      this.map.setLayoutProperty(layer.id, 'visibility', 'visible');
+      this.map.setLayoutProperty('regular-'+layer.id, 'visibility', 'visible');
     });
   }
 
@@ -144,33 +146,41 @@ export class MapComponent implements OnInit, OnDestroy {
       this.map,
       this.map.getCanvas().getContext('webgl'),
       {
-        defaultLights: true
+        defaultLights: true,
+        multilayer: true
       }
     ));
 
-    const localCurrentZoom = this.map.getZoom()
-    const localZoomThreshold = this.ZOOM_THRESHOLD
-
-    this.map.addLayer({
-      id: 'custom_layer',
-      type: 'custom',
-      render: function (gl, matrix){
-        tb.update();
+    const checkboxArray = this.layers.getCheckBoxArray();
+    checkboxArray.forEach((layer) => {
+      if (!this.map) {
+        console.error('mapBoxMap is not defined');
+        return;
       }
+
+      const featuresOnLayer: any[] = this.groupedGeoJsonData?.get(layer.id)
+
+      this.map.addLayer({
+        id: 'custom-' + layer.id,
+        type: 'custom',
+        renderingMode: '3d',
+        onAdd: function (map, gl) {
+          featuresOnLayer.forEach((feature) => {
+            const point = tb.sphere({
+              color: Colors.getColorByLevel(feature.properties.bird_risk),
+              radius: 10
+            })
+            point.setCoords(feature.geometry.coordinates)
+            tb.add(point)
+          })
+        },
+        render: function (gl, matrix) {
+          tb.update()
+        }
+      });
+      this.customLayerIDs.push('custom-' + layer.id);
+      tb.toggleLayer('custom-' + layer.id, true);
     })
-
-    this.geoJsonData.features.forEach((feature: any) => {
-      const point = tb.sphere({
-        radius: 3,
-        color: Colors.getColorByLevel(feature.properties.color)
-      })
-
-      point.setCoords(feature.geometry.coordinates)
-
-      tb.add(point)
-    })
-
-    this.map.setLayoutProperty('custom_layer', 'visibility', 'visible');
 
     this.map.on("zoom", () => {
       if (!this.map) {
@@ -181,9 +191,13 @@ export class MapComponent implements OnInit, OnDestroy {
       const zoom = this.map.getZoom();
 
       if (zoom > this.ZOOM_THRESHOLD) {
-        this.map.setLayoutProperty('custom_layer', 'visibility', 'visible')
+        this.customLayerIDs.forEach((layer) => {
+          this.map?.setLayoutProperty(layer, 'visibility', 'visible')
+        })
       } else {
-        this.map.setLayoutProperty('custom_layer', 'visibility', 'none')
+        this.customLayerIDs.forEach((layer) => {
+          this.map?.setLayoutProperty(layer, 'visibility', 'none')
+        })
       }
 
     });
@@ -193,6 +207,8 @@ export class MapComponent implements OnInit, OnDestroy {
     for (let i = 0; i < this.subscriptions.length; i++) {
       this.subscriptions[i].unsubscribe()
     }
+
+    (window as any).tb.dispose();
   }
 
 }

@@ -1,7 +1,3 @@
-import gjv from 'geojson-validation';
-import {MapComponent} from '../map/map.component';
-import {range} from 'rxjs';
-
 export class ThreePreProcessor {
 
   private returnMap: Map<number, any> = new Map<number, any[]>();

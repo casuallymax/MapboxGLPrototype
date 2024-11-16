@@ -1,7 +1,7 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ApiService} from '../service/api.service';
 import {Subscription} from 'rxjs';
-import mapboxgl, {AnyLayer, CustomLayerInterface, LayerSpecification, LngLatBoundsLike} from 'mapbox-gl';
+import mapboxgl, {LngLatBoundsLike} from 'mapbox-gl';
 import {Map as MapboxMap} from 'mapbox-gl'
 import gjv from 'geojson-validation';
 import {Layers} from '../util/layers';

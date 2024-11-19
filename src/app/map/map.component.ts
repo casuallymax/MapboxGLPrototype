@@ -5,7 +5,7 @@ import mapboxgl, {LngLatBoundsLike} from 'mapbox-gl';
 import {Map as MapboxMap} from 'mapbox-gl'
 import gjv, {valid} from 'geojson-validation';
 import {Layers} from '../util/layers';
-import {Threebox} from 'threebox-plugin'
+import {Threebox, THREE} from 'threebox-plugin'
 import {Colors} from '../util/colors';
 import {ThreePreProcessor} from '../util/threePreProcessor';
 import {LayerDefinition, ToggleDefinition} from '../util/types';
@@ -73,7 +73,7 @@ export class MapComponent implements OnInit, OnDestroy {
       this.map,
       this.map.getCanvas().getContext('webgl'),
       {
-        defaultLights: true,
+        defaultLights: false,
         multilayer: true,
       }
     ));
@@ -88,27 +88,6 @@ export class MapComponent implements OnInit, OnDestroy {
 
       this.load3DimMarkers(this.tb);
 
-    });
-
-    this.map.on("zoom", () => {
-      if (!this.map) {
-        console.error('Map ist nicht definiert');
-        return;
-      }
-
-      const zoom = this.map.getZoom();
-
-      if (zoom > this.ZOOM_THRESHOLD) {
-        this.customLayerIDs.forEach((layer) => {
-          this.tb.toggleLayer(layer.layerId, layer.visibility)
-        });
-        this.toggle3Dim = true;
-      } else {
-        this.customLayerIDs.forEach((layer) => {
-          this.tb.toggleLayer(layer.layerId, false)
-        });
-        this.toggle3Dim = false;
-      }
     });
 
   }
@@ -165,7 +144,7 @@ export class MapComponent implements OnInit, OnDestroy {
           'circle-radius': 3,
           'circle-color': layer.colors()
         },
-        maxzoom: this.ZOOM_THRESHOLD,
+        maxzoom: this.ZOOM_THRESHOLD, //TODO: Change back
         filter: layer.filter
       })
 
@@ -202,11 +181,11 @@ export class MapComponent implements OnInit, OnDestroy {
         onAdd: function (map, gl) {
           featuresOnLayer.forEach((feature) => {
             const point = tb.sphere({
-              color: layer.colors(),
-              radius: 10
+              radius: 10,
+              material: new THREE.MeshBasicMaterial({color: 0xff003d})
             })
-            point.setCoords(feature.geometry.coordinates)
-            tb.add(point, 'custom-'+layer.id)
+            point.setCoords(feature.geometry.coordinates);
+            tb.add(point, 'custom-'+layer.id);
           })
         },
         render: function (gl, matrix) {
@@ -222,8 +201,10 @@ export class MapComponent implements OnInit, OnDestroy {
         visibility: true
       }
 
+      tb.setLayerZoomRange(layerDef.layerId, this.ZOOM_THRESHOLD, 0)
+
       this.customLayerIDs.push(layerDef);
-      tb.toggleLayer('custom-' + layer.id, true);
+      tb.toggleLayer(layerDef.layerId, true);
 
     })
   }

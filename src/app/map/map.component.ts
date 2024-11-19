@@ -34,7 +34,6 @@ export class MapComponent implements OnInit, OnDestroy {
   private threeProcessor = new ThreePreProcessor();
   private tb?: any;
 
-  private toggle3Dim: boolean = false;
   private regularLayerIDs: LayerDefinition[] = [];
   private customLayerIDs: LayerDefinition[] = [];
 
@@ -73,8 +72,9 @@ export class MapComponent implements OnInit, OnDestroy {
       this.map,
       this.map.getCanvas().getContext('webgl'),
       {
-        defaultLights: false,
+        defaultLights: true,
         multilayer: true,
+
       }
     ));
 
@@ -144,7 +144,7 @@ export class MapComponent implements OnInit, OnDestroy {
           'circle-radius': 3,
           'circle-color': layer.colors()
         },
-        maxzoom: this.ZOOM_THRESHOLD, //TODO: Change back
+        maxzoom: 0, //TODO: Change back
         filter: layer.filter
       })
 
@@ -189,7 +189,7 @@ export class MapComponent implements OnInit, OnDestroy {
           })
         },
         render: function (gl, matrix) {
-          tb.update()
+          tb.update();
         }
       });
 
@@ -215,6 +215,7 @@ export class MapComponent implements OnInit, OnDestroy {
       return;
     }
 
+    //TODO: Change mapbox functions to threebox .toggleLayer
     if (input.value < 1 || input.value > 10) {
       return;
     } else {
@@ -227,13 +228,7 @@ export class MapComponent implements OnInit, OnDestroy {
         this.map.setLayoutProperty(this.regularLayerIDs[input.value - 1].layerId, 'visibility', 'none');
       }
 
-      if (this.customLayerIDs[input.value - 1].visibility) {
-        this.map.setLayoutProperty(this.customLayerIDs[input.value - 1].layerId, 'visibility', 'visible');
-      } else {
-        this.map.setLayoutProperty(this.customLayerIDs[input.value - 1].layerId, 'visibility', 'none');
-      }
-
-      if (this.toggle3Dim) this.tb.toggleLayer(this.customLayerIDs[input.value - 1].layerId, this.customLayerIDs[input.value - 1].visibility)
+      this.tb.toggleLayer(this.customLayerIDs[input.value - 1].layerId, this.customLayerIDs[input.value - 1].visibility)
     }
   }
 

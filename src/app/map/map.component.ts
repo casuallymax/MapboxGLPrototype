@@ -35,6 +35,7 @@ export class MapComponent implements OnInit, OnDestroy {
   private threeProcessor = new ThreePreProcessor();
   private tb?: any;
 
+  private toggle3Dim: boolean = false;
   private regularLayerIDs: LayerDefinition[] = [];
   private customLayerIDs: LayerDefinition[] = [];
 
@@ -88,6 +89,27 @@ export class MapComponent implements OnInit, OnDestroy {
       this.load2DimMarkers();
 
       this.load3DimMarkers(this.tb);
+
+      this.map.on("zoom", () => {
+        if (!this.map) {
+          console.error('Map ist nicht definiert');
+          return;
+        }
+
+        const zoom = this.map.getZoom();
+
+        if (zoom > this.ZOOM_THRESHOLD) {
+          this.customLayerIDs.forEach((layer) => {
+            this.tb.toggleLayer(layer.layerId, layer.visibility)
+          });
+          this.toggle3Dim = true;
+        } else {
+          this.customLayerIDs.forEach((layer) => {
+            this.tb.toggleLayer(layer.layerId, false)
+          });
+          this.toggle3Dim = false;
+        }
+      });
 
     });
 
@@ -145,7 +167,7 @@ export class MapComponent implements OnInit, OnDestroy {
           'circle-radius': 3,
           'circle-color': layer.colors()
         },
-        maxzoom: 0, //TODO: Change back
+        maxzoom: this.ZOOM_THRESHOLD,
         filter: layer.filter
       })
 
@@ -199,15 +221,10 @@ export class MapComponent implements OnInit, OnDestroy {
         }
       });
 
-      // threebox: linearSRGB
-      // mapbox: SRGB
-
       const layerDef: LayerDefinition = {
         layerId: 'custom-' + layer.id,
         visibility: true
       }
-
-      tb.setLayerZoomRange(layerDef.layerId, this.ZOOM_THRESHOLD, 0)
 
       this.customLayerIDs.push(layerDef);
       tb.toggleLayer(layerDef.layerId, true);
@@ -234,7 +251,7 @@ export class MapComponent implements OnInit, OnDestroy {
         this.map.setLayoutProperty(this.regularLayerIDs[input.value - 1].layerId, 'visibility', 'none');
       }
 
-      this.tb.toggleLayer(this.customLayerIDs[input.value - 1].layerId, this.customLayerIDs[input.value - 1].visibility)
+      if (this.toggle3Dim) this.tb.toggleLayer(this.customLayerIDs[input.value - 1].layerId, this.customLayerIDs[input.value - 1].visibility)
     }
   }
 

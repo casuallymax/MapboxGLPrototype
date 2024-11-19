@@ -148,7 +148,7 @@
       "type": "Feature",
       "geometry": {
         "type": "Point",
-        "coordinates": [10.25, 52.27, 10375]
+        "coordinates": [10.27, 52.27, 10375]
       },
       "properties": {
         "georef": "NKLH",

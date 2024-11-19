@@ -9,6 +9,7 @@ import {Threebox, THREE} from 'threebox-plugin'
 import {Colors} from '../util/colors';
 import {ThreePreProcessor} from '../util/threePreProcessor';
 import {LayerDefinition, ToggleDefinition} from '../util/types';
+import {Color} from 'mapbox-gl/dist/style-spec';
 
 @Component({
   selector: 'mapComponent',
@@ -165,6 +166,8 @@ export class MapComponent implements OnInit, OnDestroy {
       return;
     }
 
+    tb.renderer.outputEncoding = THREE.sRGBEncoding;
+
     const checkboxArray = this.layers.getCheckBoxArray();
     checkboxArray.forEach((layer) => {
       if (!this.map) {
@@ -180,9 +183,12 @@ export class MapComponent implements OnInit, OnDestroy {
         renderingMode: '3d',
         onAdd: function (map, gl) {
           featuresOnLayer.forEach((feature) => {
+            let mat = new THREE.MeshBasicMaterial();
+            mat.color.setHex(Colors.hexStringToNumber(layer.colors())).convertSRGBToLinear()
+
             const point = tb.sphere({
               radius: 10,
-              material: new THREE.MeshBasicMaterial({color: 0xff003d})
+              material: mat
             })
             point.setCoords(feature.geometry.coordinates);
             tb.add(point, 'custom-'+layer.id);

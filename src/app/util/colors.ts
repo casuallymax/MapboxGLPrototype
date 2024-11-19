@@ -41,4 +41,13 @@ export class Colors {
     }
 
   }
+
+  static hexStringToNumber(hex: string): number {
+    if (hex.startsWith('#')) {
+      hex = hex.slice(1);
+    }
+
+    return parseInt(hex, 16);
+  }
+
 }

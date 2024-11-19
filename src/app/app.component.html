@@ -1,9 +1,5 @@
-<mapComponent class="map"
-  [toggleLayer]="layerData"
->
+<mapComponent class="map" #MapComponent>
 </mapComponent>
 
-<navComponent class="overlay"
-  (toggleLayers)="layerData=$event"
->
+<navComponent class="overlay" #navComponent>
 </navComponent>

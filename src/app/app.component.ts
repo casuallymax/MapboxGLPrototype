@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import {AfterViewInit, Component, ViewChild} from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import {MapComponent} from './map/map.component';
 import {NavComponent} from './nav/nav.component';
+import {ManagerService} from './service/manager.service';
 
 @Component({
   selector: 'app-root',
@@ -10,13 +11,19 @@ import {NavComponent} from './nav/nav.component';
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
-export class AppComponent {
+export class AppComponent implements AfterViewInit{
   title = 'Map';
 
-  layerData: {
-    value: number,
-    checked: boolean
+  constructor(
+    private service: ManagerService
+  ) {
   }
+
+  @ViewChild(MapComponent) map!: MapComponent;
+  ngAfterViewInit() {
+    this.service.setMap(this.map)
+  }
+
 
 
 }

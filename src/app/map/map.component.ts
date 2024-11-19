@@ -3,11 +3,12 @@ import {ApiService} from '../service/api.service';
 import {Subscription} from 'rxjs';
 import mapboxgl, {LngLatBoundsLike} from 'mapbox-gl';
 import {Map as MapboxMap} from 'mapbox-gl'
-import gjv from 'geojson-validation';
+import gjv, {valid} from 'geojson-validation';
 import {Layers} from '../util/layers';
 import {Threebox} from 'threebox-plugin'
 import {Colors} from '../util/colors';
 import {ThreePreProcessor} from '../util/threePreProcessor';
+import {LayerDefinition, ToggleDefinition} from '../util/types';
 
 @Component({
   selector: 'mapComponent',
@@ -17,12 +18,9 @@ import {ThreePreProcessor} from '../util/threePreProcessor';
   styleUrl: './map.component.css'
 })
 export class MapComponent implements OnInit, OnDestroy {
-  @Input() toggleLayer: {
-    value: number,
-    checked: boolean
-  };
 
-  private MAPBOX_TOKEN = process.env.MAPBOX_API_KEY
+  //private MAPBOX_TOKEN = process.env['MAPBOX_API_KEY']
+  private MAPBOX_TOKEN = "pk.eyJ1IjoicmJybnMiLCJhIjoiY2tpNTIwcGJhMDJsZzJxbnF0YXhmMDY1NSJ9._cIg-xSzGD06aLiY3Ggsxg"
   private MAPBOX_STYLE = 'mapbox://styles/mapbox/dark-v11'
   private MAPBOX_TERRAIN = 'mapbox://mapbox.mapbox-terrain-dem-v1'
 
@@ -34,8 +32,12 @@ export class MapComponent implements OnInit, OnDestroy {
   private map: MapboxMap | null = null
   private layers = new Layers();
   private threeProcessor = new ThreePreProcessor();
+  private tb?: any;
 
-  private customLayerIDs: string[] = [];
+  private toggle3Dim: boolean = false;
+  private regularLayerIDs: LayerDefinition[] = [];
+  private customLayerIDs: LayerDefinition[] = [];
+
 
   constructor(
     private apiService: ApiService
@@ -67,6 +69,15 @@ export class MapComponent implements OnInit, OnDestroy {
 
     this.map.setMaxBounds(BOUNDS)
 
+    this.tb = ((window as any).tb = new Threebox(
+      this.map,
+      this.map.getCanvas().getContext('webgl'),
+      {
+        defaultLights: true,
+        multilayer: true,
+      }
+    ));
+
     this.map.on('load', () => {
       if (!this.map) {
         console.error('Map ist nicht definiert');
@@ -75,8 +86,29 @@ export class MapComponent implements OnInit, OnDestroy {
 
       this.load2DimMarkers();
 
-      this.load3DimMarkers();
+      this.load3DimMarkers(this.tb);
 
+    });
+
+    this.map.on("zoom", () => {
+      if (!this.map) {
+        console.error('Map ist nicht definiert');
+        return;
+      }
+
+      const zoom = this.map.getZoom();
+
+      if (zoom > this.ZOOM_THRESHOLD) {
+        this.customLayerIDs.forEach((layer) => {
+          this.tb.toggleLayer(layer.layerId, layer.visibility)
+        });
+        this.toggle3Dim = true;
+      } else {
+        this.customLayerIDs.forEach((layer) => {
+          this.tb.toggleLayer(layer.layerId, false)
+        });
+        this.toggle3Dim = false;
+      }
     });
 
   }
@@ -126,7 +158,7 @@ export class MapComponent implements OnInit, OnDestroy {
       }
 
       this.map.addLayer({
-        id: 'regular-'+layer.id,
+        id: 'regular-' + layer.id,
         type: 'circle',
         source: 'geoJsonData',
         paint: {
@@ -137,24 +169,22 @@ export class MapComponent implements OnInit, OnDestroy {
         filter: layer.filter
       })
 
+      const layerDef: LayerDefinition = {
+        layerId: 'regular-'+layer.id,
+        visibility: true
+      }
+
+      this.regularLayerIDs.push(layerDef)
+
       this.map.setLayoutProperty('regular-'+layer.id, 'visibility', 'visible');
     });
   }
 
-  load3DimMarkers() {
+  load3DimMarkers(tb: any) {
     if (!this.map) {
       console.error('Map ist nicht definiert');
       return;
     }
-
-    const tb = ((window as any).tb = new Threebox(
-      this.map,
-      this.map.getCanvas().getContext('webgl'),
-      {
-        defaultLights: true,
-        multilayer: true
-      }
-    ));
 
     const checkboxArray = this.layers.getCheckBoxArray();
     checkboxArray.forEach((layer) => {
@@ -166,19 +196,17 @@ export class MapComponent implements OnInit, OnDestroy {
       const featuresOnLayer: any[] = this.groupedGeoJsonData?.get(layer.id)
 
       this.map.addLayer({
-
         id: 'custom-' + layer.id,
         type: 'custom',
         renderingMode: '3d',
         onAdd: function (map, gl) {
           featuresOnLayer.forEach((feature) => {
             const point = tb.sphere({
-              color: Colors.getColorByLevel(feature.properties.bird_risk),
+              color: layer.colors(),
               radius: 10
             })
-
             point.setCoords(feature.geometry.coordinates)
-            tb.add(point)
+            tb.add(point, 'custom-'+layer.id)
           })
         },
         render: function (gl, matrix) {
@@ -186,29 +214,46 @@ export class MapComponent implements OnInit, OnDestroy {
         }
       });
 
-      this.customLayerIDs.push('custom-' + layer.id);
+      // threebox: linearSRGB
+      // mapbox: SRGB
+
+      const layerDef: LayerDefinition = {
+        layerId: 'custom-' + layer.id,
+        visibility: true
+      }
+
+      this.customLayerIDs.push(layerDef);
       tb.toggleLayer('custom-' + layer.id, true);
 
     })
+  }
 
-    this.map.on("zoom", () => {
-      if (!this.map) {
-        console.error('Map ist nicht definiert');
-        return;
-      }
+  setLayerVisibility(input: ToggleDefinition) {
+    if (!this.map) {
+      console.error('mapBoxMap is not defined');
+      return;
+    }
 
-      const zoom = this.map.getZoom();
+    if (input.value < 1 || input.value > 10) {
+      return;
+    } else {
+      this.regularLayerIDs[input.value - 1].visibility = input.checked;
+      this.customLayerIDs[input.value - 1].visibility = input.checked;
 
-      if (zoom > this.ZOOM_THRESHOLD) {
-        this.customLayerIDs.forEach((layer) => {
-          this.map?.setLayoutProperty(layer, 'visibility', 'visible')
-        })
+      if (this.regularLayerIDs[input.value - 1].visibility) {
+        this.map.setLayoutProperty(this.regularLayerIDs[input.value - 1].layerId, 'visibility', 'visible');
       } else {
-        this.customLayerIDs.forEach((layer) => {
-          this.map?.setLayoutProperty(layer, 'visibility', 'none')
-        })
+        this.map.setLayoutProperty(this.regularLayerIDs[input.value - 1].layerId, 'visibility', 'none');
       }
-    });
+
+      if (this.customLayerIDs[input.value - 1].visibility) {
+        this.map.setLayoutProperty(this.customLayerIDs[input.value - 1].layerId, 'visibility', 'visible');
+      } else {
+        this.map.setLayoutProperty(this.customLayerIDs[input.value - 1].layerId, 'visibility', 'none');
+      }
+
+      if (this.toggle3Dim) this.tb.toggleLayer(this.customLayerIDs[input.value - 1].layerId, this.customLayerIDs[input.value - 1].visibility)
+    }
   }
 
   ngOnDestroy() {

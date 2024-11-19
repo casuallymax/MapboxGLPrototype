@@ -6,4 +6,4 @@ import * as dotenv from 'dotenv';
 bootstrapApplication(AppComponent, appConfig)
   .catch((err) => console.error(err));
 
-dotenv.config();
+//dotenv.config();
